@@ -1,0 +1,32 @@
+to delete table drop table tablename;
+to delete something from table delete from tablename where name = 'username';
+
+
+
+[go to MySQL]
+
+show databases;
+create database highscoreDB;
+show databases;
+grant all on highscoreDB.* to 'highscoreuser' identified by 'pathfinder';
+quit;
+
+
+[go to MariaDB]
+
+mysql -u highscoreuser -p highscoreDB
+
+create table players (
+ -> id int not null auto_increment primary key,
+ -> username varchar(64) not null,
+ -> word varchar(32),
+ -> wordsinput varchar(128),
+ -> highest int,
+ -> date_joined timestamp default current_timestamp,
+ -> player_ip select SUBSTRING_INDEX(USER(),'@',-1) );  //select host from information_schema.processlist WHERE ID=connection_id();
+
+describe players;
+select * from players;
+insert into players (username, word, wordsinput, highest) values ('Dawid', 'Genuinely' , 'genuine, gel, nine, gin', 4)
+show tables;
+quit;
