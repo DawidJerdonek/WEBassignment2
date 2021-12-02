@@ -2,26 +2,28 @@
 
 {%block info%}
         <p> 
-            Let's See
+            Your given word is:
         </p>
 {%endblock%}
 
 {%block heading1%}
 <h3>
-    Who I Am
+    WORD
 </h3>
 {%endblock%}
 
 {%block body1%}
 <p>
-
+    <form action="/processwords">
+        <label for="words">Input words:</label>
+        <input type="text" id="words" name="words"><br><br>
+        <input type="submit" value="FINISH">
+      </form>
 </p>
 {%endblock%}
 
 
 
 {%block continue%}
-<p>
-    <a href= "/processwords"> Finish</a>
-</p>
+
 {%endblock%}
