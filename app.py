@@ -53,52 +53,72 @@ def score_page():
 
     duplicateCounter = 0 ##Counter used for checking duplicates
     wordCounter = 0 ##Counter used for counting how many words are input
+    valid = True
+    sevenWords = True
+    acceptedWords = True
 
     for word in playerWords:
         wordCounter = wordCounter + 1
         if word.lower() not in wordList: ##Check if word exists in full word list
             print("Not a real word!")
-            wordExist = "One or more words does not exist"
+            outputMessage = "One or more words does not exist"
+            acceptedWords = False
+            sevenWords = False
         if word.lower() == givenWord: ##Check if input word is not the same as given word
             print("Player input the given word!")
-            wordExist = "Player has input the given word"
+            outputMessage = "Player has input the given word"
+            acceptedWords = False
+            sevenWords = False
         if len(word) < 4 : ##Check if word is longer than 3 characters
             print ("One or more words are shorter than 4 characters!")
-            wordExist = "Player has input the given word"
+            outputMessage = "One or more words are shorter than 4 characters!"
+            acceptedWords = False
+            sevenWords = False
             
-            
-    ##Check if player input 7 words
-    if wordCounter > 7:  
-        print("Too many words input")
-    if wordCounter < 7:
-        print("Not enough words input")
-    else:     
-        for word in playerWords:
-            for secondWord in playerWords:
-                if word.lower() == secondWord.lower(): ##Check if duplicates exist, if counter is more than 7 then duplicates exist
-                    duplicateCounter = duplicateCounter + 1
 
-        if duplicateCounter > 7:
-            print("Duplicate Words detected! : ", playerWords) 
-        
-        print(duplicateCounter)
+           
+    ##Check if player input 7 words
+    if acceptedWords == True:
+        if wordCounter > 7:  
+            print("Too many words input")
+            outputMessage = "Too many words input"
+            sevenWords = False
+        if wordCounter < 7:
+            print("Not enough words input")
+            outputMessage = "Not enough words input"
+            sevenWords = False
+        else:     
+            for word in playerWords:
+                for secondWord in playerWords:
+                    if word.lower() == secondWord.lower(): ##Check if duplicates exist, if counter is more than 7 then duplicates exist
+                        duplicateCounter = duplicateCounter + 1
+
+            if duplicateCounter > 7:
+                print("Duplicate Words detected! : ", playerWords) 
+                outputMessage = "Duplicate Words detected!"
+                sevenWords = False
 
         
     lettersInGiven = Counter(givenWord) ##Count letters in given word
     print(lettersInGiven)
-    for word in playerWords:
-        lettersInPlayer = Counter(word.lower()) ##Count letters in each user word
-        print("Player", lettersInPlayer)
-        for i in lettersInPlayer:
-            if(lettersInPlayer[i] <= lettersInGiven[i]):
-                print("Word is valid")
-                wordExist = "Word is valid"
-            else:
-                print("Word is not valid")
-                wordExist = "One or more words not valid"
-                break
 
-    return render_template("processwords.html", the_title = "Check Words", given_word = givenWord , input_words = playerWords , validity = wordExist )
+    if sevenWords == True:
+        for word in playerWords:
+            lettersInPlayer = Counter(word.lower()) ##Count letters in each user word
+            print("Player", lettersInPlayer)
+            for i in lettersInPlayer:
+                if(lettersInPlayer[i] <= lettersInGiven[i]):
+                    print("Word is valid")
+                    outputMessage = "Word is valid"
+                else:
+                    print("Word is not valid")
+                    valid = False
+                    break
+
+        if valid == False:
+            outputMessage = "One or more words not valid" 
+
+    return render_template("processwords.html", the_title = "Check Words", given_word = givenWord , input_words = playerWords , validity = outputMessage )
 
 @app.route("/top10")
 def leaderboard_page():
