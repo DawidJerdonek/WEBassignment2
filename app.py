@@ -156,21 +156,32 @@ def leaderboard_page():
     print(converted)
 
     with DBcm.UseDatabase(config) as db:
-        SQL = """insert into players(username, word, wordsinput, time_score, player_browser, player_ip) values (%s,%s,%s,%s,%s,%s) """
-        db.execute(SQL,(username, givenWord, converted, endTime, playerBrowser, playerIP))
+        SQL = """insert into players(username, word, wordsinput, time_score) values (%s,%s,%s,%s) """
+        db.execute(SQL,(username, givenWord, converted, endTime))
         ##data = db.fetchall()
 
     with DBcm.UseDatabase(config) as db:
         SQL = """select * from players order by time_score"""
         db.execute(SQL)
-        data = db.fetchall()
-
-    return render_template("top10.html", the_title = "Highscores")
+        scores = db.fetchall()
+        
+    return render_template("top10.html", the_title = "Highscores", table = scores)
 
 @app.route("/log")
 def log_page():
     return render_template("log.html", the_title = "Log")
 
+def save_data():
+    with DBcm.UseDatabase(config) as db:
+        SQL = """select * from players order by time_score"""
+        data = db.fetchall()
+    return data
+
+def process_data():
+    with DBcm.UseDatabase(config) as db:
+        SQL = """select * from players order by time_score"""
+        data = db.fetchall()
+    return data
 
 
 if __name__ == "__main__":

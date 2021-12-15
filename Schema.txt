@@ -1,4 +1,4 @@
-[go to MySQL]
+###############[go to MySQL]###############
 
 show databases;
 create database highscoreDB;
@@ -7,7 +7,7 @@ grant all on highscoreDB.* to 'highscoreuser' identified by 'pathfinder';
 quit;
 
 
-[go to MariaDB]
+###############[go to MariaDB]###############
 
 mysql -u highscoreuser -p highscoreDB
 
@@ -16,10 +16,9 @@ id int not null auto_increment primary key,
 username varchar(64) not null,
 word varchar(32),
 wordsinput varchar(128),
-time_score float,
-date_joined timestamp default current_timestamp,
-player_browser varchar(128) not null,
-player_ip varchar(64) not null);
+time_score float);
+
+
 
 create table playerlogs (
 status varchar(16),
