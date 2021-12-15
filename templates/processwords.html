@@ -14,15 +14,24 @@
 
 {%block body1%}
 <p>
-    {{input_words}}
-    {{validity}}
+    <ol>
+        <li>{{input_words}}</li>
+        <li>{{validity}}</li>
+        <li>Time taken: {{time_score}}</li>
+        <li>Date played: {{date_joined}}</li>
+    </ol>
+
+    
 </p>
 {%endblock%}
 
 
 
 {%block continue%}
-<button onclick="window.location.href='/top10'">
-    Proceed to the leaderboards
-</button>
+
+<form action="/top10">
+    <label for="username">Username:</label>
+    <input type="text" required="" id="username" name="username"><br><br>
+    <input type="submit" value="Confirm name">
+  </form>
 {%endblock%}

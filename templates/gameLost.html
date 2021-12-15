@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{%block info%}
+        <p> 
+            Let's See, Your given word was: {{given_word}}
+        </p>
+{%endblock%}
+
+{%block heading1%}
+<h3>
+    Words the player input:
+</h3>
+{%endblock%}
+
+{%block body1%}
+<p>
+    {{input_words}}
+    {{validity}}
+</p>
+{%endblock%}
+
+
+
+{%block continue%}
+
+<button onclick="window.location.href='/play'" id="button1">
+    Play again
+</button>
+
+{%endblock%}

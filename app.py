@@ -1,7 +1,7 @@
 from flask import Flask, request
 
 import datetime
-
+import time
 from flask.templating import render_template
 
 import DBcm
@@ -9,6 +9,15 @@ import random
 from collections import Counter
 
 app = Flask(__name__)
+
+
+config = {
+    'host' : '127.0.0.1',
+    'database': 'highscoreDB',
+    'user' : 'highscoreuser',
+    'password' : 'pathfinder',
+}
+
 
 
 @app.get("/")  # register the / URL with the Flask web server.
@@ -21,6 +30,12 @@ def currentGivenWord(given):
 
 @app.route("/play")
 def play_page():
+
+    global startTime
+    ##global endTime
+    startTime = time.time()
+    ##endTime = time.time()
+    
     with open("small.txt" , "w") as sf:
         with open("big.txt" , "w") as bf:
             with open("words.txt") as wf:
@@ -49,7 +64,12 @@ with open ("finalWords.txt") as fullList:
 @app.route("/processwords")
 def score_page():
 
+    global playerWords
     playerWords = request.args.get("words").split()
+
+    global endTime
+    endTime = time.time()
+    endTime = endTime - startTime
 
     duplicateCounter = 0 ##Counter used for checking duplicates
     wordCounter = 0 ##Counter used for counting how many words are input
@@ -115,13 +135,36 @@ def score_page():
                     valid = False
                     break
 
-        if valid == False:
-            outputMessage = "One or more words not valid" 
+    if valid == False or sevenWords == False:
+        outputMessage = "One or more words not valid" 
 
-    return render_template("processwords.html", the_title = "Check Words", given_word = givenWord , input_words = playerWords , validity = outputMessage )
+        return render_template("gameLost.html", the_title = "YOU LOSE", given_word = givenWord , input_words = playerWords , validity = outputMessage)
+    else:
+            
+        return render_template("processwords.html", the_title = "YOU WIN", given_word = givenWord , input_words = playerWords ,
+         validity = outputMessage, time_score = endTime, date_joined = datetime.datetime.now())
 
 @app.route("/top10")
 def leaderboard_page():
+    username = request.args.get("username")
+    playerBrowser = request.user_agent.string
+    playerIP = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
+    converted = " ".join(playerWords)
+    print(username)
+    print(playerBrowser)
+    print(playerIP)
+    print(converted)
+
+    with DBcm.UseDatabase(config) as db:
+        SQL = """insert into players(username, word, wordsinput, time_score, player_browser, player_ip) values (%s,%s,%s,%s,%s,%s) """
+        db.execute(SQL,(username, givenWord, converted, endTime, playerBrowser, playerIP))
+        ##data = db.fetchall()
+
+    with DBcm.UseDatabase(config) as db:
+        SQL = """select * from players order by time_score"""
+        db.execute(SQL)
+        data = db.fetchall()
+
     return render_template("top10.html", the_title = "Highscores")
 
 @app.route("/log")
