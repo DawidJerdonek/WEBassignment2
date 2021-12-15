@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, session
 
 import datetime
 import time
@@ -9,7 +9,7 @@ import random
 from collections import Counter
 
 app = Flask(__name__)
-
+app.config['SECRET_KEY'] = 'IDK anymore I guess, good luck man'
 
 config = {
     'host' : '127.0.0.1',
@@ -24,17 +24,12 @@ config = {
 def home_page():
    return render_template("home.html", the_title = "Welcome to the word game!")
 
-def currentGivenWord(given):
-    givenWord = given
-    return givenWord
-
 @app.route("/play")
 def play_page():
 
-    global startTime
-    ##global endTime
     startTime = time.time()
-    ##endTime = time.time()
+    session["startTime"] = startTime
+    startTime = time.time()
     
     with open("small.txt" , "w") as sf:
         with open("big.txt" , "w") as bf:
@@ -52,7 +47,8 @@ def play_page():
     with open ("big.txt") as bigWordsList:
         givenWords = bigWordsList.read()
         #print(givenWords)
-    global givenWord
+    givenWord = ""
+    session["givenWord"] = givenWord
     givenWord = (random.choice(givenWords.split()))
     
     return render_template("play.html", the_title = "Play Game", given_word = givenWord)
@@ -64,10 +60,16 @@ with open ("finalWords.txt") as fullList:
 @app.route("/processwords")
 def score_page():
 
-    global playerWords
+    startTime = session.get["startTime"]
+    givenWord = session.get["givenWord"]
+
+
+    playerWords = []
+    session["playerWords"] = playerWords
     playerWords = request.args.get("words").split()
 
-    global endTime
+    endTime = time.time()
+    session["endTime"] = endTime
     endTime = time.time()
     endTime = endTime - startTime
 
@@ -118,7 +120,8 @@ def score_page():
                 outputMessage = "Duplicate Words detected!"
                 sevenWords = False
 
-        
+    
+    givenWord = session.get["givenWord"]
     lettersInGiven = Counter(givenWord) ##Count letters in given word
     print(lettersInGiven)
 
@@ -134,18 +137,29 @@ def score_page():
                     print("Word is not valid")
                     valid = False
                     break
+                   
+    playerBrowser = request.user_agent.string
+    playerIP = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
+    converted = " ".join(playerWords)
+
 
     if valid == False or sevenWords == False:
         outputMessage = "One or more words not valid" 
-
+        status = "LOST"
+        save_logs(status, givenWord, converted, playerBrowser, playerIP)
         return render_template("gameLost.html", the_title = "YOU LOSE", given_word = givenWord , input_words = playerWords , validity = outputMessage)
     else:
-            
+        status = "WON" 
+        save_logs(status, givenWord, converted, playerBrowser, playerIP)
         return render_template("processwords.html", the_title = "YOU WIN", given_word = givenWord , input_words = playerWords ,
          validity = outputMessage, time_score = endTime, date_joined = datetime.datetime.now())
 
 @app.route("/top10")
 def leaderboard_page():
+    givenWord = session.get["givenWord"]
+    endTime = session.get["endTime"]
+    playerWords = session.get["playerWords"]
+
     username = request.args.get("username")
     playerBrowser = request.user_agent.string
     playerIP = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
@@ -155,33 +169,50 @@ def leaderboard_page():
     print(playerIP)
     print(converted)
 
-    with DBcm.UseDatabase(config) as db:
-        SQL = """insert into players(username, word, wordsinput, time_score) values (%s,%s,%s,%s) """
-        db.execute(SQL,(username, givenWord, converted, endTime))
-        ##data = db.fetchall()
 
-    with DBcm.UseDatabase(config) as db:
-        SQL = """select * from players order by time_score"""
-        db.execute(SQL)
-        scores = db.fetchall()
-        
-    return render_template("top10.html", the_title = "Highscores", table = scores)
+
+    save_data(username, givenWord, converted, endTime)
+    data = process_data()
+
+    return render_template("top10.html", the_title = "Highscores", table = data)
 
 @app.route("/log")
 def log_page():
     return render_template("log.html", the_title = "Log")
 
-def save_data():
+def save_data(username, givenWord, converted, endTime):
     with DBcm.UseDatabase(config) as db:
-        SQL = """select * from players order by time_score"""
+        SQL = """insert into players(username, word, wordsinput, time_score) values (%s,%s,%s,%s) """
+        db.execute(SQL,(username, givenWord, converted, endTime))
+
         data = db.fetchall()
     return data
+
+def save_logs(status, givenWord, converted, browser, ip):
+    with DBcm.UseDatabase(config) as db:
+        SQL = """insert into playerlogs(username, word, wordsinput, time_score) values (%s,%s,%s,%s,%s) """
+        db.execute(SQL,(status, givenWord, converted, browser, ip))
+
+        logs = db.fetchall()
+    return logs
+
 
 def process_data():
     with DBcm.UseDatabase(config) as db:
         SQL = """select * from players order by time_score"""
-        data = db.fetchall()
-    return data
+        db.execute(SQL)
+        scores =[]
+        scores = db.fetchall()
+
+    non_null = lambda x:"*"
+
+    for row in SQL:
+        mylist = map(non_null, row)
+
+        nextRow = tuple(mylist)
+        scores.append(nextRow)
+
+    return scores[:10]
 
 
 if __name__ == "__main__":
