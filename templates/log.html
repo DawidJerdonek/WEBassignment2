@@ -9,8 +9,51 @@
         {%endblock%}
 
         {%block heading1%}
+        <head>
+            <style>
+            #logs {
+              font-family: Arial, Helvetica, sans-serif;
+              border-collapse: collapse;
+              width: 100%;
+            }
+            
+            #logs td, #players th {
+              border: 1px solid #ddd;
+              padding: 8px;
+            }
+            
+            #logs tr:nth-child(even){background-color: #858585;}
+            
+            #logs tr:hover {background-color: rgb(0, 238, 255);}
+            
+            #logs th {
+              padding-top: 12px;
+              padding-bottom: 12px;
+              text-align: left;
+              background-color: #ff0000;
+              color: rgb(0, 204, 255);
+            }
+            </style>
+            </head>
         {%endblock%}
         {%block body1%}
+        <table id= "logs">
+            <tr>
+            <th>Status</th>
+            <th>Word Given</th>
+            <th>Words Input</th>
+            <th>Date Played</th>
+            <th>User Browser</th>
+            <th>User IP</th>
+            </tr>
+            {% for row in table %}
+                <tr>
+                {% for i in row %}
+                    <td>{{i}}</td>
+                {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
         {%endblock%}
         
         {%block heading2%}

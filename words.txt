@@ -5905,8 +5905,6 @@ FNMA
 FNMA's
 FSF
 FSF's
-FabergÃ©
-FabergÃ©'s
 Fabian
 Fabian's
 Facebook
@@ -14008,8 +14006,6 @@ Poe
 Poe's
 Pogo
 Pogo's
-PoincarÃ©
-PoincarÃ©'s
 Poiret
 Poiret's
 Poirot
@@ -14018,8 +14014,6 @@ Poisson
 Poisson's
 Poitier
 Poitier's
-PokÃ©mon
-PokÃ©mon's
 Poland
 Poland's
 Polanski

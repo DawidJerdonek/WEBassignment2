@@ -3057,7 +3057,6 @@ f
 fdr
 fnma
 fsf
-fabergãƒâ©
 fabian
 facebook
 faeroe
@@ -7249,12 +7248,10 @@ podhoretz
 podunk
 poe
 pogo
-poincarãƒâ©
 poiret
 poirot
 poisson
 poitier
-pokãƒâ©mon
 poland
 polanski
 polaris
