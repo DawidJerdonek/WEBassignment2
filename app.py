@@ -27,9 +27,9 @@ def home_page():
 @app.route("/play")
 def play_page():
     ##global startTime
-    startTime = time.time()
+    startTime = datetime.datetime.now()
     session["startTime"] = startTime
-    
+
     with open("small.txt" , "w") as sf:
         with open("big.txt" , "w") as bf:
             with open("words.txt") as wf:
@@ -59,19 +59,17 @@ with open ("finalWords.txt") as fullList:
 @app.route("/processwords")
 def score_page():
 
-    startTime = session.get("startTime")
+    startTime = session["startTime"]
     givenWord = session.get("givenWord")
 
 
     playerWords = request.args.get("words").split()
     session["playerWords"] = playerWords
     
-
     ##global endTime
-    endTime = time.time()
-    endTime = endTime - startTime
+    endTime = datetime.datetime.now()
+    endTime = endTime.timestamp() - startTime.timestamp()
     session["endTime"] = endTime
-
 
     duplicateCounter = 0 ##Counter used for checking duplicates
     wordCounter = 0 ##Counter used for counting how many words are input
@@ -225,7 +223,7 @@ def process_data():
 
 def process_logs():
     with DBcm.UseDatabase(config) as db:
-        SQL = """select * from playerlogs order by date_played"""
+        SQL = """select * from playerlogs order by date_played desc"""
         db.execute(SQL)
         logs =[]
         logs = db.fetchall()
